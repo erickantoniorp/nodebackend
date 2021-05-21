@@ -1,0 +1,16 @@
+{
+  "name": "panico",
+  "version": "1.0.0",
+  "description": "backend para app panico",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Erick Rodriguez Plaza",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^9.0.1",
+    "express": "^4.17.1"
+  }
+}
