@@ -21,9 +21,11 @@ class User{
             this.tipodoc = json.tipodoc;
             this.sexo = json.sexo;
             this.idrol = json.idrol;
+            this.fotourl = json.fotourl;
         }
 
     }
+    
     constructor(json)
     {
         if(json){
@@ -45,6 +47,7 @@ class User{
             this.tipodoc = -1;
             this.sexo = -1;
             this.idrol = 0;
+            this.fotourl = null;
         }
     }
 
@@ -99,8 +102,9 @@ class User{
         const salt = bcryptjs.genSaltSync();
         const encryptedPassword = bcryptjs.hashSync( this.clave, salt );
 
-        const mUser = [this.correo, this.nombres, this.apellidop, this.apellidom, this.dni_ce, this.dateToString(), encryptedPassword, this.celular, this.idoperador, this.estado, this.tipodoc, this.sexo ];        //Si es nuevo, id<0
+        const mUser = [this.correo, this.nombres, this.apellidop, this.apellidom, this.dni_ce, this.dateToString(), encryptedPassword, this.celular, this.idoperador, this.estado, this.tipodoc, this.sexo ];        
 
+        //Si es nuevo, id<0
         if( id<0 ) 
         {
             sql = 'INSERT INTO "public"."tbUsuario" (correo, nombres, apellidop, apellidom, dni_ce, fechanac, clave, celular, idoperador, estado, tipodoc, sexo) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)';
@@ -117,6 +121,32 @@ class User{
             console.log("Error: " + err);
             return null;
         }
+    }
+
+    updatePhotoById(id, newUrl)
+    {
+        //Para la consulta
+        var sql = "";
+
+        const mUser = [newUrl];        
+
+        if( id>0 ) 
+        {
+            sql = 'UPDATE "public"."tbUsuario" SET fotourl = $1 WHERE id = ' + id;
+        
+            try{
+                const result = dbQuery(sql, mUser);
+                return result;
+            }
+            catch(err)
+            {
+                console.log("Error: " + err);
+                return null;
+            }
+        }
+
+        return null;
+
     }
 
     list(iduser, limit=-1)
