@@ -13,7 +13,7 @@ class Server{
         this.userPath = '/api/user';
         this.authPath = '/api/auth';
         this.uploadPath = '/api/uploads';
-
+        this.alertPath = '/api/alert';
 
         //Conectar a BD
         this.databaseConnection();
@@ -59,7 +59,7 @@ class Server{
         this.app.use( this.userPath, require('../routes/user'));
         this.app.use( this.authPath, require('../routes/auth'));
         this.app.use( this.uploadPath, require('../routes/uploads'));
-
+        this.app.use( this.alertPath, require('../routes/alert'));
     }
 
     listen()
