@@ -1,6 +1,10 @@
 const { response, request } = require('express');
 const Alert = require('../models/alert');
 
+//Cambios 02/09/2021
+const multer  = require('multer');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const alertGet = async(req = request, res = response) => { 
 
@@ -71,6 +75,95 @@ const alertPost = async (req, res) => {
     });
 };
 
+const alertWithImagePost = async (req, res) => { 
+
+    const { archivo } = req.files;
+    console.log(archivo);
+    const splitFileName = archivo.name.split('.');
+    const extension = splitFileName[ splitFileName.length - 1];
+    
+    //Validar Extensiones válidas
+    const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+    if( !validExtensions.includes(extension) ){
+        reject(`La exntensión ${extension} no está permitida. Las válidas son: ${ validExtensions }`);
+    }
+
+    var result = null;
+
+    const newName = uuidv4() + '.' + extension;
+    const uploadPath = path.join(__dirname , '../uploads/' , '', newName);
+
+    var storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            console.log("destination: " + uploadPath );
+            cb(null, uploadPath);
+        },
+        filename: function (req, file, cb) {
+            console.log("filename: " + newName );
+            cb(null, newName); //path.extname(file.originalname));
+        }
+    });
+
+    // Treat posted file
+    /*var upload = multer({ storage: storage }).fields([
+        { name: 'archivo', maxCount: 1 }, 
+    ]);*/
+
+    var upload = multer({ storage: storage }).fields([
+        { name: 'archivo', maxCount: 1 }, 
+    ]);
+
+
+    upload(req, res, function(err) {
+        
+        if (req.fileValidationError) {
+            return res.send(req.fileValidationError);
+        }
+        else if (!req.file) {
+            return res.send('Please select an image to upload');
+        }
+        else if (err instanceof multer.MulterError) {
+            return res.send(err);
+        }
+        else if (err) {
+            console.log("Error: " + err );
+        } 
+
+        console.log("Archivo Subido: " + req.file.path );
+
+        // Get posted data:
+        var obj = { 
+            idusuario       : req.body.idusuario,
+            tipo            : req.body.tipo,
+            gps             : req.body.gps,
+            nivelbateria    : req.body.nivelbateria,
+            estado          : req.body.estado,
+            fechamovil      : req.body.fechamovil,
+            horamovil       : req.body.horamovil,
+            //fotourl         : uploadPath
+        };
+
+        console.log( req.body );
+        /*const body = req.body;
+        const newAlert = new Alert(body);
+        newAlert.fotourl = uploadPath;
+
+        if( newAlert.isValid() )
+        {
+            result = newAlert.save(-1);
+            //console.log( result );
+        }*/
+
+     });
+
+    /*res.json({
+        msg: 'POST API', 
+        res : result,
+        //body
+    });*/
+};
+
 const alertDelete = async(req, res) => {
     const { id } = req.params;
     const  uid  = req.uid;
@@ -101,4 +194,4 @@ const alertPatch = (req, res) => {
     });
 };
 
-module.exports = { alertGet, alertPost, alertDelete, alertPatch, alertPut }
+module.exports = { alertGet, alertPost, alertDelete, alertPatch, alertPut, alertWithImagePost }

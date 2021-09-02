@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { alertGet, alertDelete, alertPatch, alertPost, alertPut } = require('../controllers/alert');
+const { alertGet, alertDelete, alertPatch, alertPost, alertPut, alertWithImagePost } = require('../controllers/alert');
 
 const { fieldsValidator } = require('../middlewares/fieldvalidator');
 const { validateJWT } = require('../middlewares/jwtvalidator');
@@ -22,6 +22,8 @@ router.post('/', [
     fieldsValidator
     ],
     alertPost );
+
+router.post('/withimage', alertWithImagePost );
 
 router.put('/:id', alertPut );
 
