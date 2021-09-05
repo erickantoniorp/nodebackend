@@ -29,8 +29,15 @@ router.post('/', [
     ],
     alertPost );
 
-router.post('/withimage', alertWithImagePost );
-router.post('/withotherimage', upload.single('archivo'), alertWithImage2 );
+router.post('/withimage', upload.single('archivo'), alertWithImagePost );
+router.post('/withotherimage', async (req, res, next)=>{
+   try{
+        await upload.single('profilePicture');
+        next();
+   }catch(err){
+        console.log(err);
+        res.send('failed!');
+   }}, alertWithImage2 );
 
 router.put('/:id', alertPut );
 

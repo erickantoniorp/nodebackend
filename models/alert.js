@@ -73,9 +73,9 @@ class Alert{
     //validacion si lo enviado para el usuario es correcto, por modificar y mejorar
     isValid()
     {
+        let val = -1;
         try{
             this.showMe();
-            let val = -1;
             //if( this.fecha.trim().length>0 ) val = 1;
             //if( this.hora.trim().length>0 ) val = 1;
             if( this.gps.trim().length>0 ) val = 1;
@@ -88,7 +88,7 @@ class Alert{
             console.log("Error en isValid: " + err);
             return false;
         }
-        return ( val>0 );
+        return val>0 ;
     }
 
     showMe(){
@@ -103,15 +103,18 @@ class Alert{
         //Para la consulta
         let sql = "";
 
-        const mAlert = [this.tipo, this.idusuario, this.gps, this.nivelbateria, this.dateToString(this.fechamovil), this.horamovil, this.estado ];        
-        console.log('mAler: ' + mAlert);
+        const tmpFotoUrl    = ( this.fotourl )?(this.fotourl):"";
+        const tmpOtherInfo  = ( this.otrainfo )?(this.otrainfo):"";
+
+        const mAlert = [this.tipo, this.idusuario, this.gps, this.nivelbateria, this.dateToString(this.fechamovil), this.horamovil, tmpFotoUrl, tmpOtherInfo, this.estado ];        
+        console.log('mAlert: ' + mAlert);
         //Si es nuevo, id<0
         if( id<0 ) 
         {
-            sql = 'INSERT INTO "public"."tbAlerta" (tipo, idusuario, gps, nivelbateria, fechamovil, horamovil, estado) VALUES ($1, $2, $3, $4, $5, $6, $7)';
+            sql = 'INSERT INTO "public"."tbAlerta" (tipo, idusuario, gps, nivelbateria, fechamovil, horamovil, fotourl, otrainfo, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)';
         }
         else{
-            sql = 'UPDATE "public"."tbAlerta" SET tipo = $1, idusuario = $2, gps = $3, nivelbateria = $4, fechamovil = $5, horamovil= $6, estado = $7 WHERE id = ' + this.id;
+            sql = 'UPDATE "public"."tbAlerta" SET tipo = $1, idusuario = $2, gps = $3, nivelbateria = $4, fechamovil = $5, horamovil= $6, fotourl= $7, otrainfo=$8, estado = $9 WHERE id = ' + this.id;
         }
         try{
             const result = dbQuery(sql, mAlert);

@@ -130,9 +130,11 @@ const alertWithImagePost = async (req, res) => {
     upload(req, res, function(err) {
         console.log("Entro al upload");
         //console.log("req: "+ req);
-        console.log("file     : "+ req.file);
-        console.log("file path: "+ req.path);
-        console.log("file name: "+ req.body.filename);
+        console.log("files    : " + req.files);
+        console.log("file     : " + req.file);
+        console.log("body     : " +  req.body);
+        console.log("file path: " + req.path);
+        console.log("file name: " + req.body.filename);
 
         /*if (req.fileValidationError) {
             console.log("Entro a req.fileValidationError");
@@ -192,7 +194,7 @@ const alertWithImage2 = async (req, res, next) => {
     try {
         console.log(req.file);
         console.log(req.body);
-        
+
         console.log( "idusuario: " + req.body.idusuario );
         console.log( "gps " + req.body.gps );
         console.log( "tipo: "+ req.body.tipo );
