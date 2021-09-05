@@ -73,15 +73,29 @@ class Alert{
     //validacion si lo enviado para el usuario es correcto, por modificar y mejorar
     isValid()
     {
-        let val = -1;
-        //if( this.fecha.trim().length>0 ) val = 1;
-        //if( this.hora.trim().length>0 ) val = 1;
-        if( this.gps.trim().length>0 ) val = 1;
-        if( this.nivelbateria.trim().length>0 ) val = 1;
-        if( this.fechamovil.trim().length>0 ) val = 1;
-        if( this.horamovil.trim().length>0 ) val = 1;
-        //if( this.clave.trim().length>0 ) val = 1;
+        try{
+            this.showMe();
+            let val = -1;
+            //if( this.fecha.trim().length>0 ) val = 1;
+            //if( this.hora.trim().length>0 ) val = 1;
+            if( this.gps.trim().length>0 ) val = 1;
+            if( this.nivelbateria.trim().length>0 ) val = 1;
+            if( this.fechamovil.trim().length>0 ) val = 1;
+            if( this.horamovil.trim().length>0 ) val = 1;
+            //if( this.clave.trim().length>0 ) val = 1;
+        }catch(err)
+        {
+            console.log("Error en isValid: " + err);
+            return false;
+        }
         return ( val>0 );
+    }
+
+    showMe(){
+        console.log( "Gps: " + this.gps );
+        console.log( "Nivelbateria: " + this.nivelbateria );        
+        console.log( "Fechamovil: " + this.fechamovil );
+        console.log( "Horamovil: " + this.horamovil );
     }
 
     save( idusuario, id=-1 )

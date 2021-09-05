@@ -5,6 +5,7 @@ const Alert = require('../models/alert');
 const multer  = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { fileUploadHelper }  = require('../helpers/fileupload')
 
 const alertGet = async(req = request, res = response) => { 
 
@@ -78,7 +79,6 @@ const alertPost = async (req, res) => {
 const alertWithImagePost = async (req, res) => { 
 
     const { archivo } = req.files;
-    console.log(archivo);
     const splitFileName = archivo.name.split('.');
     const extension = splitFileName[ splitFileName.length - 1];
     
@@ -93,15 +93,28 @@ const alertWithImagePost = async (req, res) => {
 
     const newName = uuidv4() + '.' + extension;
     const uploadPath = path.join(__dirname , '../uploads/' , '', newName);
+    //const uploadPath = '../uploads/';
+    //const uploadPath = 'uploads/';
+    console.log("newName    : " + newName);
+    console.log("uploadPath : " + uploadPath);
 
-    var storage = multer.diskStorage({
+    const storage = multer.diskStorage({
         destination: function (req, file, cb) {
             console.log("destination: " + uploadPath );
-            cb(null, uploadPath);
+            console.log("req: " + req );
+            console.log("file: " + file );
+            cb(function(err){
+                console.log("Error en destination: " + err);
+            }, uploadPath);
         },
         filename: function (req, file, cb) {
             console.log("filename: " + newName );
-            cb(null, newName); //path.extname(file.originalname));
+            console.log("req: " + req );
+            console.log("file: " + file );
+            req.body.file = filename;
+            cb(function(err){
+                console.log("Error en filename: " + err);
+            }, newName); //path.extname(file.originalname));
         }
     });
 
@@ -110,27 +123,35 @@ const alertWithImagePost = async (req, res) => {
         { name: 'archivo', maxCount: 1 }, 
     ]);*/
 
-    var upload = multer({ storage: storage }).fields([
-        { name: 'archivo', maxCount: 1 }, 
-    ]);
+    const upload = multer({ storage: storage }).single('archivo');
+    //const upload = multer({ dest: '../uploads/' })
 
-
+    
     upload(req, res, function(err) {
-        
-        if (req.fileValidationError) {
+        console.log("Entro al upload");
+        //console.log("req: "+ req);
+        console.log("file     : "+ req.file);
+        console.log("file path: "+ req.path);
+        console.log("file name: "+ req.body.filename);
+
+        /*if (req.fileValidationError) {
+            console.log("Entro a req.fileValidationError");
             return res.send(req.fileValidationError);
         }
         else if (!req.file) {
+            console.log("Entro a req.file");
             return res.send('Please select an image to upload');
         }
         else if (err instanceof multer.MulterError) {
+            console.log("Entro a instanceof multer.MulterError");
             return res.send(err);
         }
-        else if (err) {
+        else */
+        if (err) {
             console.log("Error: " + err );
         } 
 
-        console.log("Archivo Subido: " + req.file.path );
+        //console.log("Archivo Subido: " + req.file.path );
 
         // Get posted data:
         var obj = { 
@@ -155,14 +176,112 @@ const alertWithImagePost = async (req, res) => {
             //console.log( result );
         }*/
 
+        
      });
+     
 
-    /*res.json({
+    res.json({
         msg: 'POST API', 
-        res : result,
+        //res : result,
         //body
-    });*/
+    });
 };
+
+
+const alertWithImage2 = async (req, res, next) => {
+    try {
+        console.log(req.file);
+        console.log(req.body);
+        
+        console.log( "idusuario: " + req.body.idusuario );
+        console.log( "gps " + req.body.gps );
+        console.log( "tipo: "+ req.body.tipo );
+        console.log( "nivelbateria: "+ req.body.nivelbateria );
+        console.log( "estado: "+ req.body.estado );
+        console.log( "fechamovil: "+ req.body.fechamovil );
+        console.log( "horamovil: "+ req.body.horamovil );
+
+        const body = req.body;
+
+        const { archivo } = req.files;
+        //console.log("Archivo: " + archivo);
+        const splitFileName = archivo.name.split('.');
+        const extension = splitFileName[ splitFileName.length - 1];
+        //console.log("Archivo: " + archivo);
+        //console.log("Req: " + req);
+        
+        //Validar Extensiones válidas
+        const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    
+        if( !validExtensions.includes(extension) ){
+            reject(`La exntensión ${extension} no está permitida. Las válidas son: ${ validExtensions }`);
+        }
+        const newName = uuidv4() + '.' + extension;
+        const uploadPath = path.join(__dirname , '../uploads/' , '', newName);
+        console.log("uploadPath : " + uploadPath);
+
+        const newAlert          = Alert.instanceOf();
+        newAlert.idusuario      = body.idusuario;
+        newAlert.gps            = body.gps;
+        newAlert.tipo           = body.tipo;
+        newAlert.nivelbateria   = body.nivelbateria;
+        newAlert.estado         = body.estado;
+        newAlert.fechamovil     = body.fechamovil;
+        newAlert.horamovil      = body.horamovil;
+
+        //console.log("body: " + req.body );
+        //console.log(`Datos enviados de la alerta: ${newAlert}`);
+
+        if (archivo) {
+
+            try{
+                const fileName = await fileUploadHelper(req.files);
+                console.log("url: " + fileName);
+
+                if (fileName != undefined && fileName != null) {
+                    newAlert.fotourl = fileName;
+                }
+                }catch(err)
+            {
+                /*res.status(400).json({
+                    msg: err
+                });*/
+                console.log("Error fileUploadHelper: " + err);
+            }
+
+        }
+
+        //console.log("Alert: " + newAlert);
+        if( newAlert.isValid() )
+        {
+            console.log("Entro isValid: ");
+            result = await newAlert.save(-1);
+            console.log( result );
+
+            return res.status(201).json({
+                success: true,
+                message: 'El registro se realizo correctamente',
+                result
+            });
+        }
+        else{
+            return res.status(501).json({
+                success: false,
+                message: 'Hubo un error con el registro dela alerta',
+            });
+            }
+        
+
+    } 
+    catch (error) {
+        console.log(`Error: ${error}`);
+        return res.status(501).json({
+            success: false,
+            message: 'Hubo un error con el registro dela alerta',
+            error: error
+        });
+    }
+}
 
 const alertDelete = async(req, res) => {
     const { id } = req.params;
@@ -194,4 +313,4 @@ const alertPatch = (req, res) => {
     });
 };
 
-module.exports = { alertGet, alertPost, alertDelete, alertPatch, alertPut, alertWithImagePost }
+module.exports = { alertGet, alertPost, alertDelete, alertPatch, alertPut, alertWithImagePost, alertWithImage2 }

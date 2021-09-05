@@ -1,16 +1,22 @@
-const { Router } = require('express');
-const { check } = require('express-validator');
+const { Router }            = require('express');
+const { check }             = require('express-validator');
 
-const { alertGet, alertDelete, alertPatch, alertPost, alertPut, alertWithImagePost } = require('../controllers/alert');
 
-const { fieldsValidator } = require('../middlewares/fieldvalidator');
-const { validateJWT } = require('../middlewares/jwtvalidator');
+const { alertGet, alertDelete, alertPatch, alertPost, alertPut, alertWithImagePost, alertWithImage2 } = require('../controllers/alert');
+
+const { fieldsValidator }   = require('../middlewares/fieldvalidator');
+const { validateJWT }       = require('../middlewares/jwtvalidator');
 const { adminRoleValidation, roleValidation } = require('../middlewares/rolevalidator');
-const { userIdExists } = require('../middlewares/alertvalidator');
+const { userIdExists }      = require('../middlewares/alertvalidator');
 
-const router = Router();
+//const uploadMulter  = require('../middlewares/uploadmulter');
+//const multer = require('multer');
 
-router.get('/', alertGet );
+const router                = Router();
+
+const multer                = require('multer');
+const mystorage             = multer.memoryStorage();
+const upload                = multer({ storage: mystorage });
 
 router.post('/', [
     userIdExists,
@@ -24,6 +30,7 @@ router.post('/', [
     alertPost );
 
 router.post('/withimage', alertWithImagePost );
+router.post('/withotherimage', upload.single('archivo'), alertWithImage2 );
 
 router.put('/:id', alertPut );
 
