@@ -116,6 +116,7 @@ class Alert{
         else{
             sql = 'UPDATE "public"."tbAlerta" SET tipo = $1, idusuario = $2, gps = $3, nivelbateria = $4, fechamovil = $5, horamovil= $6, fotourl= $7, otrainfo=$8, estado = $9 WHERE id = ' + this.id;
         }
+        console.log("sql: " + sql);
         try{
             const result = dbQuery(sql, mAlert);
             return result;
@@ -236,8 +237,12 @@ class Alert{
     {
         if( fecha.length >0)
         {
-            var arrayDeCadenas =fecha.split('/');
-            const newDate = arrayDeCadenas[2] + arrayDeCadenas[1] + arrayDeCadenas[0];
+            var arrayDeCadenas  = fecha.split('/');
+            var tmpMonth        = arrayDeCadenas[1];
+            var tmpDay          = arrayDeCadenas[0];
+            if( tmpMonth.length<2 ) tmpMonth = "0" + tmpMonth;
+            if( tmpDay.length<2 )   tmpDay = "0" + tmpDay;
+            const newDate = arrayDeCadenas[2] + tmpMonth + tmpDay;
             return newDate;
         }
         return fecha;
